@@ -112,3 +112,34 @@ uchování historie mezi běhy, stránkování, síťové chyby a vrácení data
 při chybě výstupu. Runtime nemá externí závislosti, proto nepotřebuje lockfile.
 Používejte čtyřmezerné odsazení; `.editorconfig` a konfigurace Ruff v `pyproject.toml`
 udržují jednotný styl. Pokud máte Ruff nainstalovaný, použijte `ruff format .` a `ruff check .`.
+
+## Web v domácí síti
+
+Webové rozhraní běží na počítači s uloženou historií a přehledy. Otevřete ho z
+jakéhokoli zařízení v domácí síti na adrese:
+
+```text
+http://192.168.1.140:8088
+```
+
+Stránka dovoluje spustit kontrolu se zvolenou hranicí slevy, ukazuje její průběh
+a nabízí archiv všech HTML a CSV přehledů. Současně může běžet jedna kontrola.
+Služba používá `data/history.sqlite3` a `reports/` v tomto projektu.
+
+Jednorázové spuštění pro správu nebo diagnostiku:
+
+```bash
+python3 lidl_web.py --host 192.168.1.140 --port 8088
+```
+
+Soubor `deploy/lidl-slevy.service` je uživatelská služba systemd. Nainstalujte ji
+do `~/.config/systemd/user/`, pak ji načtěte a zapněte:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now lidl-slevy.service
+systemctl --user status lidl-slevy.service
+```
+
+Má-li zařízení jinou pevnou IP adresu, upravte parametr `--host` v souboru služby,
+proveďte `daemon-reload` a službu restartujte.

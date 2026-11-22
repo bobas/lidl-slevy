@@ -1,0 +1,14 @@
+[Unit]
+Description=Lidl slevy web
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/bobas/Documents/Codex/lidl
+ExecStart=/usr/bin/python3 /home/bobas/Documents/Codex/lidl/lidl_web.py --host 192.168.1.140 --port 8088
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
