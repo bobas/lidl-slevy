@@ -1,0 +1,110 @@
+{
+  "numFound": 2,
+  "offset": 0,
+  "fetchsize": 60,
+  "items": [
+    {
+      "type": "product",
+      "code": "100386322",
+      "gridbox": {
+        "data": {
+          "productId": 100386322,
+          "fullTitle": "PARKSIDE® Sada elektrikářského nářadí 1000 V, 6dílná",
+          "canonicalUrl": "/p/parkside-sada-elektrikarskeho-naradi-1000-v-6dilna/p100386322",
+          "image": "https://www.lidl.cz/assets/gcpc2256a5aa11f497082f37ad57f067396.jpg",
+          "price": {
+            "currencyCode": "CZK",
+            "currencyCodeSecond": "",
+            "currencySymbol": "Kč",
+            "currencySymbolSecond": "",
+            "discount": {
+              "absoluteDiscount": 209.1,
+              "deletedPrice": 449.0,
+              "discountHasStar": false,
+              "discountText": "209,10 Kč sleva",
+              "fromNormalPriceForLidlPlus": false,
+              "fromRecommendedPrice": false,
+              "hideBargainHint": false,
+              "bargainHintEnabled": true,
+              "bargainHintText": "Megaúlovek",
+              "percentageDiscount": 46,
+              "showDiscount": true,
+              "showFrom": false,
+              "showPercentage": true,
+              "showUpTo": false
+            },
+            "displayedCurrency": "Kč",
+            "endDate": "2026-11-07T22:59:59Z",
+            "endDateExclusive": "2026-11-07T23:00Z",
+            "hasStar": false,
+            "hasVat": true,
+            "hasZeroVat": false,
+            "oldPrice": 449.0,
+            "packaging": {},
+            "price": 239.9,
+            "showEndDate": false,
+            "specialTaxes": [],
+            "startDate": "2026-11-06T23:00Z",
+            "superscript": "",
+            "tax": "21",
+            "variantsHaveDifferentPrices": false
+          },
+          "dealOfDay": {
+            "active": true
+          }
+        }
+      }
+    },
+    {
+      "type": "product",
+      "code": "100409922",
+      "gridbox": {
+        "data": {
+          "productId": 100409922,
+          "fullTitle": "ESMARA® Dámské plyšové kalhoty \"Wide Leg\"",
+          "canonicalUrl": "/p/esmara-damske-plysove-kalhoty-wide-leg/p100409922",
+          "price": {
+            "currencyCode": "CZK",
+            "currencyCodeSecond": "",
+            "currencySymbol": "Kč",
+            "currencySymbolSecond": "",
+            "discount": {
+              "absoluteDiscount": 120.0,
+              "deletedPrice": 269.9,
+              "discountHasStar": false,
+              "discountText": "120 Kč sleva",
+              "fromNormalPriceForLidlPlus": false,
+              "fromRecommendedPrice": false,
+              "hideBargainHint": false,
+              "bargainHintEnabled": true,
+              "bargainHintText": "Megaúlovek",
+              "percentageDiscount": 44,
+              "showDiscount": true,
+              "showFrom": false,
+              "showPercentage": true,
+              "showUpTo": false
+            },
+            "displayedCurrency": "Kč",
+            "endDate": "2026-11-07T22:59:59Z",
+            "endDateExclusive": "2026-11-07T23:00Z",
+            "hasStar": false,
+            "hasVat": true,
+            "hasZeroVat": false,
+            "oldPrice": 269.9,
+            "packaging": {},
+            "price": 149.9,
+            "showEndDate": false,
+            "specialTaxes": [],
+            "startDate": "2026-11-06T23:00Z",
+            "superscript": "",
+            "tax": "21",
+            "variantsHaveDifferentPrices": false
+          },
+          "dealOfDay": {
+            "active": true
+          }
+        }
+      }
+    }
+  ]
+}
