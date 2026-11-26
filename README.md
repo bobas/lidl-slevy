@@ -125,6 +125,9 @@ http://192.168.1.140:8088
 Stránka dovoluje spustit kontrolu se zvolenou hranicí slevy, ukazuje její průběh
 a nabízí archiv všech HTML a CSV přehledů. Současně může běžet jedna kontrola.
 Služba používá `data/history.sqlite3` a `reports/` v tomto projektu.
+Favicon v kartě prohlížeče během kontroly zobrazuje oranžovou tečku; po jejím
+dokončení se přepne na zelenou fajfku (nebo červený křížek při chybě). Stav je
+proto vidět i při práci v jiné kartě.
 
 Jednorázové spuštění pro správu nebo diagnostiku:
 

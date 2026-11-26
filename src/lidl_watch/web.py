@@ -40,6 +40,7 @@ class ScanState:
     min_discount: Decimal = MIN_DISCOUNT
     started_at: str | None = None
     finished_at: str | None = None
+    succeeded: bool | None = None
     message: str = "Zatím nebyla spuštěna žádná kontrola."
     output: str = ""
 
@@ -51,6 +52,7 @@ class ScanState:
             self.min_discount = min_discount
             self.started_at = datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S")
             self.finished_at = None
+            self.succeeded = None
             self.message = "Kontrola běží. Stránka se obnoví za pět sekund."
             self.output = ""
         threading.Thread(target=self._scan, daemon=True).start()
@@ -75,6 +77,7 @@ class ScanState:
             self.running = False
             self.finished_at = datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S")
             self.output = result.stdout.strip()
+            self.succeeded = result.returncode == 0
             if result.returncode == 0:
                 self.message = "Kontrola je hotová. Nejnovější přehled je nahoře v archivu."
             else:
@@ -94,6 +97,22 @@ def report_path(name: str) -> Path | None:
     return path if path.is_file() else None
 
 
+def favicon_svg(running: bool, succeeded: bool | None) -> str:
+    """Return a compact tab icon that represents the latest scan state."""
+    if running:
+        color, symbol, label = "#ef8b00", "…", "Kontrola běží"
+    elif succeeded is True:
+        color, symbol, label = "#16803c", "✓", "Kontrola hotová"
+    elif succeeded is False:
+        color, symbol, label = "#c42b1c", "×", "Kontrola skončila chybou"
+    else:
+        color, symbol, label = "#516478", "•", "Kontrola zatím nebyla spuštěna"
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<title>{label}</title><circle cx="32" cy="32" r="29" fill="{color}"/>
+<text x="32" y="43" fill="white" font-family="Arial, sans-serif" font-size="42"
+text-anchor="middle">{symbol}</text></svg>'''
+
+
 def dashboard(state: ScanState) -> str:
     escape = html.escape
     with state.lock:
@@ -102,6 +121,7 @@ def dashboard(state: ScanState) -> str:
         message = state.message
         started_at = state.started_at
         finished_at = state.finished_at
+        succeeded = state.succeeded
         output = state.output
     report_rows = "".join(
         '<li><a href="/reports/'
@@ -128,10 +148,20 @@ def dashboard(state: ScanState) -> str:
     if output:
         details += "<pre>" + escape(output) + "</pre>"
     disabled = " disabled" if running else ""
+    if running:
+        favicon_state = "running"
+    elif succeeded is True:
+        favicon_state = "success"
+    elif succeeded is False:
+        favicon_state = "error"
+    else:
+        favicon_state = "idle"
+    page_title = "Lidl · Kontrola běží" if running else "Lidl · Slevy"
     return f"""<!doctype html>
 <html lang="cs"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">{refresh}
-<title>Lidl · Slevy</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?state={favicon_state}">
+<title>{page_title}</title>
 <style>
 :root {{ color-scheme: light; font-family: system-ui, sans-serif; color: #172c40; background: #f2f5f8; }}
 body {{ max-width: 860px; margin: 0 auto; padding: 42px 22px; }}
@@ -167,6 +197,9 @@ class LidlHandler(BaseHTTPRequestHandler):
         if path == "/":
             self._html(dashboard(self.state))
             return
+        if path == "/favicon.svg":
+            self._favicon()
+            return
         if path.startswith("/reports/"):
             self._report(path.removeprefix("/reports/"))
             return
@@ -195,6 +228,17 @@ class LidlHandler(BaseHTTPRequestHandler):
         payload = content.encode("utf-8")
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _favicon(self) -> None:
+        with self.state.lock:
+            content = favicon_svg(self.state.running, self.state.succeeded)
+        payload = content.encode("utf-8")
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "image/svg+xml")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()

@@ -22,8 +22,32 @@ from lidl_watch.client import download_page, fetch_products, page_url
 from lidl_watch.history import prepare_database, update_history
 from lidl_watch.models import Alert, Product, WatchError, parse_product
 from lidl_watch.report import atomic_write, render_csv, render_html
+from lidl_watch.web import ScanState, dashboard, favicon_svg
 
 FIXTURE = Path(__file__).parent / "fixtures" / "search_page.json"
+
+
+class WebTests(unittest.TestCase):
+    def test_dashboard_uses_running_favicon_while_scan_is_active(self):
+        state = ScanState(running=True)
+
+        page = dashboard(state)
+
+        self.assertIn('href="/favicon.svg?state=running"', page)
+        self.assertIn("<title>Lidl · Kontrola běží</title>", page)
+
+    def test_favicon_represents_finished_success_and_failure(self):
+        self.assertIn("#16803c", favicon_svg(False, True))
+        self.assertIn(">✓</text>", favicon_svg(False, True))
+        self.assertIn("#c42b1c", favicon_svg(False, False))
+        self.assertIn(">×</text>", favicon_svg(False, False))
+
+    def test_dashboard_uses_distinct_finished_favicon(self):
+        successful = dashboard(ScanState(succeeded=True))
+        failed = dashboard(ScanState(succeeded=False))
+
+        self.assertIn('href="/favicon.svg?state=success"', successful)
+        self.assertIn('href="/favicon.svg?state=error"', failed)
 
 
 def product(identifier="10001", discount="40", title="Testovací produkt"):
