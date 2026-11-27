@@ -78,9 +78,10 @@ python3 lidl_slevy.py --help
 
 Skript čte stránky postupně v pořadí `percentageDiscount-desc`. Úvodní denní
 akce poznává podle příznaku `dealOfDay.active`, bez předpokladu pevného počtu;
-jejich nižší sleva kontrolu nezastaví. Jakmile první běžná nabídka dosáhne zvolené
-hranice nebo klesne pod ni, další stránky se již nestahují. I denní akce se do
-výsledků dostanou pouze při splnění zvolené hranice a pravidel historie.
+jejich nižší sleva kontrolu nezastaví. Kontrola skončí až po 30 běžných nabídkách
+po sobě se slevou pod zvolenou hranicí. Zabraňuje to předčasnému ukončení, pokud
+server výjimečně nedodrží řazení. I denní akce se do výsledků dostanou pouze při
+splnění zvolené hranice a pravidel historie.
 
 Mezi stránkami čeká půl sekundy a dočasné síťové chyby zkusí opakovat.
 Průběžné změně počtu nabídek se

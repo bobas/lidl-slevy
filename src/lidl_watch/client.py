@@ -1,4 +1,4 @@
-"""Read discounted products in server order, stopping below the selected threshold."""
+"""Read discounted products in server order, with a cautious low-discount cutoff."""
 
 import json
 import time
@@ -13,6 +13,7 @@ from .models import BASE_URL, MIN_DISCOUNT, Product, WatchError, parse_product
 
 API_URL = BASE_URL + "/q/api/query/slevy"
 PAGE_SIZE = 60
+LOW_DISCOUNT_STREAK = 30
 
 
 def page_url(offset: int) -> str:
@@ -78,6 +79,7 @@ def fetch_products(
     offset = 0
     total = None
     window = None
+    low_discount_streak = 0
     while True:
         page = fetch_page(offset)
         count = page.get("numFound")
@@ -106,7 +108,7 @@ def fetch_products(
                 break
             raise WatchError("Chybí stránka produktů. Historie nebyla změněna.")
         page_ids = []
-        reached_minimum = False
+        reached_low_discount_streak = False
         for item in items:
             if not isinstance(item, dict) or item.get("type") != "product":
                 raise WatchError("Neočekávaná položka ve výpisu Lidl.cz.")
@@ -115,10 +117,15 @@ def fetch_products(
             previous = products.get(product.id)
             if previous is None or product.discount > previous.discount:
                 products[product.id] = product
-            # Promoted daily deals precede the ordinary descending list, in any quantity.
-            if not product.daily_deal and product.discount <= min_discount:
-                reached_minimum = True
-                break
+            # Promoted daily deals can be inserted anywhere and do not affect the streak.
+            if not product.daily_deal:
+                if product.discount < min_discount:
+                    low_discount_streak += 1
+                    if low_discount_streak >= LOW_DISCOUNT_STREAK:
+                        reached_low_discount_streak = True
+                        break
+                else:
+                    low_discount_streak = 0
         fingerprint = tuple(page_ids)
         if fingerprint in page_fingerprints:
             raise WatchError("Lidl opakuje stejnou stránku. Historie nebyla změněna.")
@@ -126,8 +133,11 @@ def fetch_products(
         # Collapsed variants can shorten items; advance by the server's window.
         offset += step
         progress(f"Načteno {min(offset, total)}/{total} pozic, {len(products)} produktů.")
-        if reached_minimum:
-            progress(f"Dosažena hranice {min_discount} %; další stránky nenačítám.")
+        if reached_low_discount_streak:
+            progress(
+                f"Nalezeno {LOW_DISCOUNT_STREAK} běžných nabídek po sobě pod "
+                f"{min_discount} %; další stránky nenačítám."
+            )
             break
         if offset >= total:
             break
